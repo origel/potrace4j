@@ -764,10 +764,6 @@ constvioloop:
                 // nothing
             } else {
                 count++;
-                for(int i=0; i<p.priv.pt.size(); i++) {
-                    //System.out.println("point "+i+"="+p.priv.pt.get(i));
-                }
-                //System.out.println("===============================================================================");
                 paths.add(p);
             }
         }

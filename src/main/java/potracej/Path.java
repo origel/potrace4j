@@ -3,9 +3,9 @@ package potracej;
 import java.util.ArrayList;
 
 public class Path {
-    public int area;                         /* area of the bitmap path */
-    public char sign;                         /* '+' or '-', depending on orientation */
-    public Curve curve;            /* this path's vector data */
+    public int area;       /* area of the bitmap path */
+    public char sign;      /* '+' or '-', depending on orientation */
+    public Curve curve;    /* this path's vector data */
 
     public Path next;      /* linked list structure */
 
