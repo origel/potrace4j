@@ -1,12 +1,12 @@
 package potracej;
 
-public class opti_t {
-    double pen;       /* penalty */
+public class Opti {
+    double pen;        /* penalty */
     PointDouble c[];   /* curve parameters */
-    double t, s;	   /* curve parameters */
-    double alpha;	   /* curve parameter */
+    double t, s;       /* curve parameters */
+    double alpha;      /* curve parameter */
 
-    public opti_t() {
+    public Opti() {
         c = new PointDouble[2];
         c[0] = new PointDouble();
         c[1] = new PointDouble();

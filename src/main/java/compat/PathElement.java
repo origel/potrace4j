@@ -1,12 +1,5 @@
 package compat;
 
-/**
-* Created with IntelliJ IDEA.
-* User: san
-* Date: 6/12/12
-* Time: 12:29 PM
-* To change this template use File | Settings | File Templates.
-*/
 public class PathElement {
 
     public enum Type {

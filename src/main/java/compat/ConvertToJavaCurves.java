@@ -8,16 +8,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-/**
- * Created with IntelliJ IDEA.
- * User: san
- * Date: 6/12/12
- * Time: 12:28 PM
- * To change this template use File | Settings | File Templates.
- */
 public class ConvertToJavaCurves {
 
-    public static String f(double d) {
+    public static String double2string(double d) {
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setMaximumFractionDigits(1);
         return decimalFormat.format(d);
@@ -116,7 +109,5 @@ public class ConvertToJavaCurves {
         }
 
         return nodeCount;
-
     }
-
 }

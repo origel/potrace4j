@@ -150,9 +150,7 @@ public class Main {
         for (int i = 0; i < 1; i++) {
             trace = poTraceJ.trace(bmp);
         }
-        poTraceJ.printTimers();
-        l = System.currentTimeMillis() - l;
-        System.out.println("L=" + l);
+
         ArrayList<PathElement> al = new ArrayList<PathElement>();
         ConvertToJavaCurves.convert(trace, new HashSet<ConvertToJavaCurves.Point>(), al);
 

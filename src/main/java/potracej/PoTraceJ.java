@@ -5,12 +5,6 @@ import java.util.ArrayList;
 
 import static potracej.Bitmap.BM_GET;
 
-/**
- * User: Sanny Sanoff (san@sysdate.com)
- * Date: 6/12/12
- *
- *
- */
 public class PoTraceJ {
     Param param;
 
@@ -100,13 +94,6 @@ public class PoTraceJ {
         }
     }
 
-    public void printTimers() {
-        for (int i = 0; i < times.length; i++) {
-            long time = times[i];
-            System.out.println("Timer "+i+" = "+(-time));
-        }
-    }
-
     private void privcurve_to_curve(PrivCurve pc, Curve c) {
         c.n = pc.n;
         c.tag = pc.tag;
@@ -118,9 +105,9 @@ public class PoTraceJ {
         int[] pt = new int[m + 1];     /* pt[m+1] */
         double[] pen = new double[m + 1]; /* pen[m+1] */
         int[] len = new int[m + 1];    /* len[m+1] */
-        opti_t[] opt = new opti_t[m + 1]; /* opt[m+1] */
+        Opti[] opt = new Opti[m + 1]; /* opt[m+1] */
         for (int i = 0; i < opt.length; i++) {
-            opt[i] = new opti_t();
+            opt[i] = new Opti();
         }
         int om;
         int i, j, r;
@@ -171,7 +158,7 @@ public class PoTraceJ {
             len[j] = len[j - 1] + 1;
 
             for (i = j - 2; i >= 0; i--) {
-                opti_t o = new opti_t();
+                Opti o = new Opti();
                 r = opti_penalty(pp, i, mod(j, m), o, opttolerance, convc, areac);
                 if (r > 0) break;
                 if (len[j] > len[i] + 1 || (len[j] == len[i] + 1 && pen[j] > pen[i] + o.pen)) {
@@ -458,11 +445,6 @@ public class PoTraceJ {
             pp.curve.vertex[i].y = ymin + y0;
             continue;
         }
-
-//        for(i=0; i<m; i++) {
-//            System.out.println("vertex["+i+"]="+pp.curve.vertex[i]);
-//        }
-
     }
 
     private double[][] new_quadform() {
@@ -1429,7 +1411,7 @@ constvioloop:
         return x1 * y2 - x2 * y1;
     }
 
-    int opti_penalty(PrivPath pp, int i, int j, opti_t res, double opttolerance, int[] convc, double[] areac) {
+    int opti_penalty(PrivPath pp, int i, int j, Opti res, double opttolerance, int[] convc, double[] areac) {
         int m = pp.curve.n;
         int k, k1, k2, conv, i1;
         double area, alpha, d, d1, d2;
