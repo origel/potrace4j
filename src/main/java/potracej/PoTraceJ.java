@@ -752,7 +752,6 @@ constvioloop:
         ArrayList<Path> paths = new ArrayList<Path>();
         //path_t plist = null;
         Bitmap bm1 = bm.dup();
-        bm1.clearexcess();
         Point pt = new Point(0, bm1.h - 1);
         int count = 0;
         //System.out.println(bm1.toDebugString());

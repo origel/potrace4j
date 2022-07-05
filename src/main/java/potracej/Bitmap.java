@@ -40,10 +40,6 @@ public class Bitmap {
         return bm;
     }
 
-    public void clearexcess() {
-        // not needed
-    }
-
     public static boolean BM_GET(Bitmap bm, int x, int y) {
         return bm.get(x, y);
     }
@@ -64,20 +60,6 @@ public class Bitmap {
                 put(i, y, 0);
             }
         }
-    }
-
-    public String toDebugString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("====================================================================================================================================================================================\n");
-        for(int y=0; y<h; y++) {
-            for(int x=0; x<w; x++) {
-                if (get(x, y))
-                    sb.append("#");
-                else sb.append(".");
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
     }
 
     public int getWidth() {
