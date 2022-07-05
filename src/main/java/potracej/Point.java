@@ -1,20 +1,20 @@
 package potracej;
 
-public class point_t {
+public class Point {
     public int x;
     public int y;
 
 
-
-    public point_t(point_t o) {
+    public Point(Point o) {
         this.x = o.x;
         this.y = o.y;
     }
 
 
-    public point_t() {
+    public Point() {
     }
-    public point_t(int x, int y) {
+
+    public Point(int x, int y) {
         this.x = x;
         this.y = y;
     }

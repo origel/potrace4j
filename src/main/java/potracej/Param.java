@@ -1,6 +1,6 @@
 package potracej;
 
-public class param_t {
+public class Param {
 
     enum TurnPolicy {
         POTRACE_TURNPOLICY_RIGHT,

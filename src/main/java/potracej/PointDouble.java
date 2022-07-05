@@ -1,6 +1,6 @@
 package potracej;
 
-public class dpoint_t {
+public class PointDouble {
     public double x;
     public double y;
 

@@ -1,10 +1,9 @@
 package compat;
 
-import potracej.curve_t;
-import potracej.dpoint_t;
-import potracej.path_t;
+import potracej.Curve;
+import potracej.Path;
+import potracej.PointDouble;
 
-import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -57,18 +56,18 @@ public class ConvertToJavaCurves {
         }
     }
 
-    public static int convert(path_t plist, HashSet<Point> points, ArrayList<PathElement> result) {
+    public static int convert(Path plist, HashSet<Point> points, ArrayList<PathElement> result) {
         int nodeCount = 0;
         int i;
-        path_t child;
+        Path child;
 
-        path_t node;
+        Path node;
         for (node = plist; node != null; node = node.next) {
-            curve_t curve = node.curve;
+            Curve curve = node.curve;
             //g_message("node->fm:%d\n", node->fm);
             if (curve.n == 0)
                 continue;
-            dpoint_t[] pt = curve.c[curve.n - 1];
+            PointDouble[] pt = curve.c[curve.n - 1];
             double x0 = 0.0;
             double y0 = 0.0;
             double x1 = 0.0;

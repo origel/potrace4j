@@ -12,15 +12,15 @@ import static potracej.Bitmap.BM_GET;
  *
  */
 public class PoTraceJ {
-    param_t param;
+    Param param;
 
-    public PoTraceJ(param_t param) {
+    public PoTraceJ(Param param) {
         this.param = param;
     }
 
-    public path_t trace(Bitmap bitmap) {
+    public Path trace(Bitmap bitmap) {
         long l = System.currentTimeMillis();
-        path_t paths = bm_to_pathlist(bitmap);
+        Path paths = bm_to_pathlist(bitmap);
         l = System.currentTimeMillis() - l;
         //System.out.println("Decompose: "+l+" msec");
         l = System.currentTimeMillis();
@@ -45,17 +45,19 @@ public class PoTraceJ {
         }
     }
 
-    private void process_path(path_t paths) {
-        path_t p = paths;
+    private void process_path(Path paths) {
+        Path p = paths;
         long ol;
         while (p != null) {
             long l = System.currentTimeMillis();
             calc_sums(p.priv);
-            ol = l; l = System.currentTimeMillis();
+            ol = l;
+            l = System.currentTimeMillis();
             times[0] += ol - l;
 
             calc_lon(p.priv);
-            ol = l; l = System.currentTimeMillis();
+            ol = l;
+            l = System.currentTimeMillis();
             times[1] += ol - l;
 
             bestpolygon(p.priv);
@@ -94,7 +96,7 @@ public class PoTraceJ {
 //                System.out.println(i+": "+f(curve.c[i][0].x)+","+f(curve.c[i][0].y)+" "+f(curve.c[i][1].x)+","+f(curve.c[i][1].y)+" " + f(curve.c[i][2].x)+","+f(curve.c[i][2].y));
 //                System.out.println(i+":                 v="+f(curve.vertex[i].x)+","+f(curve.vertex[i].y)+" "+f(curve.alpha[i])+" "+f(curve.beta[i])+" "+f(curve.alpha0[i])+" "+curve.tag[i]+" ");
 //            }
-            p.curve = new curve_t();
+            p.curve = new Curve();
             privcurve_to_curve(p.priv.fcurve, p.curve);
             smooth(p.priv.curve, param.alphamax);
             ol = l; l = System.currentTimeMillis();
@@ -111,13 +113,13 @@ public class PoTraceJ {
         }
     }
 
-    private void privcurve_to_curve(privcurve_t pc, curve_t c) {
+    private void privcurve_to_curve(PrivCurve pc, Curve c) {
         c.n = pc.n;
         c.tag = pc.tag;
         c.c = pc.c;
     }
 
-    private void opticurve(privpath_t pp, double opttolerance) {
+    private void opticurve(PrivPath pp, double opttolerance) {
         int m = pp.curve.n;
         int[] pt = new int[m + 1];     /* pt[m+1] */
         double[] pen = new double[m + 1]; /* pen[m+1] */
@@ -128,7 +130,7 @@ public class PoTraceJ {
         }
         int om;
         int i, j, r;
-        dpoint_t p0;
+        PointDouble p0;
         int i1;
         double area;
         double alpha;
@@ -140,7 +142,7 @@ public class PoTraceJ {
 
         /* pre-calculate convexity: +1 = right turn, -1 = left turn, 0 = corner */
         for (i = 0; i < m; i++) {
-            if (pp.curve.tag[i] == curve_t.CurveTag.POTRACE_CURVETO) {
+            if (pp.curve.tag[i] == Curve.CurveTag.POTRACE_CURVETO) {
                 convc[i] = sign(dpara(pp.curve.vertex[mod(i - 1, m)], pp.curve.vertex[i], pp.curve.vertex[mod(i + 1, m)]));
             } else {
                 convc[i] = 0;
@@ -153,7 +155,7 @@ public class PoTraceJ {
         p0 = pp.curve.vertex[0];
         for (i = 0; i < m; i++) {
             i1 = mod(i + 1, m);
-            if (pp.curve.tag[i1] == curve_t.CurveTag.POTRACE_CURVETO) {
+            if (pp.curve.tag[i1] == Curve.CurveTag.POTRACE_CURVETO) {
                 alpha = pp.curve.alpha[i1];
                 area += 0.3 * alpha * (4 - alpha) * dpara(pp.curve.c[i][2], pp.curve.vertex[i1], pp.curve.c[i1][2]) / 2;
                 area += dpara(p0, pp.curve.c[i][2], pp.curve.c[i1][2]) / 2;
@@ -187,7 +189,7 @@ public class PoTraceJ {
             }
         }
         om = len[m];
-        pp.ocurve = new privcurve_t(om);
+        pp.ocurve = new PrivCurve(om);
         s = new double[om];
         t = new double[om];
 
@@ -204,7 +206,7 @@ public class PoTraceJ {
                 pp.ocurve.beta[i] = pp.curve.beta[mod(j, m)];
                 s[i] = t[i] = 1.0;
             } else {
-                pp.ocurve.tag[i] = curve_t.CurveTag.POTRACE_CURVETO;
+                pp.ocurve.tag[i] = Curve.CurveTag.POTRACE_CURVETO;
                 pp.ocurve.c[i][0] = opt[j].c[0];
                 pp.ocurve.c[i][1] = opt[j].c[1];
                 pp.ocurve.c[i][2] = pp.curve.c[mod(j, m)][2];
@@ -226,12 +228,12 @@ public class PoTraceJ {
 
     }
 
-    private void smooth(privcurve_t curve, double alphamax) {
+    private void smooth(PrivCurve curve, double alphamax) {
         int m = curve.n;
 
         int i, j, k;
         double dd, denom, alpha;
-        dpoint_t p2, p3, p4;
+        PointDouble p2, p3, p4;
 
         /* examine each vertex and find its best fit */
         for (i = 0; i < m; i++) {
@@ -251,7 +253,7 @@ public class PoTraceJ {
             curve.alpha0[j] = alpha;     /* remember "original" value of alpha */
 
             if (alpha > alphamax) {  /* pointed corner */
-                curve.tag[j] = curve_t.CurveTag.POTRACE_CORNER;
+                curve.tag[j] = Curve.CurveTag.POTRACE_CORNER;
                 curve.c[j][1] = curve.vertex[j];
                 curve.c[j][2] = p4;
             } else {
@@ -262,7 +264,7 @@ public class PoTraceJ {
                 }
                 p2 = interval(.5 + .5 * alpha, curve.vertex[i], curve.vertex[j]);
                 p3 = interval(.5 + .5 * alpha, curve.vertex[k], curve.vertex[j]);
-                curve.tag[j] = curve_t.CurveTag.POTRACE_CURVETO;
+                curve.tag[j] = Curve.CurveTag.POTRACE_CURVETO;
                 curve.c[j][0] = p2;
                 curve.c[j][1] = p3;
                 curve.c[j][2] = p4;
@@ -274,10 +276,10 @@ public class PoTraceJ {
         return;
     }
 
-    private void reverse(privcurve_t curve) {
+    private void reverse(PrivCurve curve) {
         int m = curve.n;
         int i, j;
-        dpoint_t tmp;
+        PointDouble tmp;
 
         for (i = 0, j = m - 1; i < j; i++, j--) {
             tmp = curve.vertex[i];
@@ -286,29 +288,29 @@ public class PoTraceJ {
         }
     }
 
-    private void adjust_vertices(privpath_t pp) {
+    private void adjust_vertices(PrivPath pp) {
         int m = pp.m;
         int[] po = pp.po;
         int n = pp.pt.size();
-        point_t pt[] = pp.pt.toArray(new point_t[n]);
+        Point pt[] = pp.pt.toArray(new Point[n]);
         int x0 = pp.x0;
         int y0 = pp.y0;
 
-        dpoint_t[] ctr = new dpoint_t[m];      /* ctr[m] */
-        dpoint_t[] dir = new dpoint_t[m];      /* dir[m] */
+        PointDouble[] ctr = new PointDouble[m];      /* ctr[m] */
+        PointDouble[] dir = new PointDouble[m];      /* dir[m] */
         double q[][][] = new double[m][][];      /* q[m] */
         for (int i = 0; i < m; i++) {
             q[i] = new_quadform();
-            ctr[i] = new dpoint_t();
-            dir[i] = new dpoint_t();
+            ctr[i] = new PointDouble();
+            dir[i] = new PointDouble();
         }
         double v[] = new double[3];
         double d;
         int i, j, k, l;
-        dpoint_t s = new dpoint_t();
+        PointDouble s = new PointDouble();
         int r;
 
-        pp.curve = new privcurve_t(m);
+        pp.curve = new PrivCurve(m);
 
         /* calculate "optimal" point-slope representation for each line
            segment */
@@ -347,7 +349,7 @@ public class PoTraceJ {
            the two lines. */
         for (i = 0; i < m; i++) {
             double[][] Q = new_quadform();
-            dpoint_t w = new dpoint_t();
+            PointDouble w = new PointDouble();
             double dx, dy;
             double det;
             double min, cand; /* minimum and candidate for minimum of quad. form */
@@ -477,7 +479,7 @@ public class PoTraceJ {
         return retval;
     }
 
-    private void bestpolygon(privpath_t pp) {
+    private void bestpolygon(PrivPath pp) {
         int i, j, m, k;
         int n = pp.pt.size();
         double[] pen = new double[n + 1]; /* pen[n+1]: penalty vector */
@@ -569,20 +571,20 @@ public class PoTraceJ {
 
     public static double COS179 = -0.999847695156;	 /* the cosine of 179 degrees */
 
-    private void calc_lon(privpath_t pp) {
+    private void calc_lon(PrivPath pp) {
         int n = pp.pt.size();
-        point_t pt[] = pp.getPTArray();
+        Point pt[] = pp.getPTArray();
         int i, j, k, k1;
         //int[] ct = new int[4];
         int dir;
         int iter = 0;
-        point_t constraint0 = new point_t();
-        point_t constraint1 = new point_t();
-        point_t cur = new point_t();
-        point_t off = new point_t();
+        Point constraint0 = new Point();
+        Point constraint1 = new Point();
+        Point cur = new Point();
+        Point off = new Point();
         int[] pivk = new int[n];  /* pivk[n] */
         int[] nc = new int[n];    /* nc[n]: next corner */
-        point_t dk = new point_t();  /* direction of k-k1 */
+        Point dk = new Point();  /* direction of k-k1 */
         int a, b, c, d;
 
         /* initialize the nc data structure. Point from each point to the
@@ -715,12 +717,12 @@ constvioloop:
         }
     }
 
-    private void calc_sums(privpath_t pp) {
+    private void calc_sums(PrivPath pp) {
         int i, x, y;
         int n = pp.pt.size();
-        pp.sums = new sums_t[n + 1];
-        for(i=0; i<n+1; i++) {
-            pp.sums[i] = new sums_t();
+        pp.sums = new Sums[n + 1];
+        for (i = 0; i < n + 1; i++) {
+            pp.sums[i] = new Sums();
         }
 
         /* origin */
@@ -746,17 +748,17 @@ constvioloop:
 
     }
 
-    private path_t bm_to_pathlist(Bitmap bm) {
-        ArrayList<path_t> paths = new ArrayList<path_t>();
+    private Path bm_to_pathlist(Bitmap bm) {
+        ArrayList<Path> paths = new ArrayList<Path>();
         //path_t plist = null;
         Bitmap bm1 = bm.dup();
         bm1.clearexcess();
-        point_t pt = new point_t(0, bm1.h - 1);
+        Point pt = new Point(0, bm1.h - 1);
         int count = 0;
         //System.out.println(bm1.toDebugString());
         while (findnext(bm1, pt) == 0) {
             char sign = bm.get(pt.x, pt.y) ? '+' : '-';
-            path_t p = findpath(bm1, pt.x, pt.y + 1, sign, param.turnPolicy);
+            Path p = findpath(bm1, pt.x, pt.y + 1, sign, param.turnPolicy);
             xor_path(bm1, p);
             //System.out.println("PATH: area="+p.area);
             if (p.area <= param.turdsize) {
@@ -774,37 +776,37 @@ constvioloop:
         return pathlist_to_tree(paths, bm1);
     }
 
-    void print_path(ArrayList<path_t> paths) {
+    void print_path(ArrayList<Path> paths) {
         int sum = 0;
         for (int i = 0; i < paths.size(); i++) {
-            path_t p = paths.get(i);
+            Path p = paths.get(i);
             int n1 = p.area;
             int n2 = p.next != null ? p.next.area : 0;
             int n3 = (p.sibling != null ? p.sibling.area : 0);
             int n4 = p.childlist != null ? p.childlist.area : 0;
-            System.out.print("P"+i+"="+n1+" n="+n2
-                +" s="+n3
-                +" cl="+n4
+            System.out.print("P" + i + "=" + n1 + " n=" + n2
+                    + " s=" + n3
+                    + " cl=" + n4
             );
             sum = ((sum + n1 + n2 + n3 + n4) << 1)| ((sum >> 31) & 1);
         }
         //System.out.println("\njsum="+sum);
     }
 
-    private path_t pathlist_to_tree(ArrayList<path_t> paths, Bitmap bm) {
+    private Path pathlist_to_tree(ArrayList<Path> paths, Bitmap bm) {
         int iter = 0;
         bm.clear();
-        path_t p;
+        Path p;
         if (paths.size() == 0) return null;
         for (int i = 0; i < paths.size(); i++) {
             p = paths.get(i);
-            p.sibling = i < paths.size() - 1 ? paths.get(i+1) : null;
+            p.sibling = i < paths.size() - 1 ? paths.get(i + 1) : null;
             p.next = p.sibling;
             p.childlist = null;
         }
-        path_t heap = paths.get(0);
-        path_t cur = null;
-        path_t head = null;
+        Path heap = paths.get(0);
+        Path cur = null;
+        Path head = null;
         while (heap != null) {
             //System.out.println("step0: ............. cur="+(cur != null ? cur.area : 0)+" heap="+(heap != null ? heap.area : 0) + " head="+(head != null ? head.area : 0));
             /* unlink first sublist */
@@ -819,11 +821,11 @@ constvioloop:
 
             //System.out.println("step0a: ............. cur="+(cur != null ? cur.area : 0)+" heap="+(heap != null ? heap.area : 0) + " head="+(head != null ? head.area : 0));
             xor_path(bm, head);
-            bbox_t bbox = setbbox_path(head);
+            BBox bbox = setbbox_path(head);
 
 
-            path_t_Holder nexts = new path_t_Holder(null);
-            path_t_Holder children = new path_t_Holder(null);
+            PathHolder nexts = new PathHolder(null);
+            PathHolder children = new PathHolder(null);
 
             /* now do insideness test for each element of cur; append it to
            head->childlist if it's inside head, else append it to
@@ -841,7 +843,7 @@ constvioloop:
                 //print_path(paths);
                 if (p.priv.pt.get(0).y <= bbox.y0) {
                     nexts.addLast(p);
-                    path_t headNextLast = find_last(head.next);
+                    Path headNextLast = find_last(head.next);
                     p.next = null;
                     if (headNextLast != null) {
                         headNextLast.next = p;
@@ -860,7 +862,7 @@ constvioloop:
                 }
                 if (BM_GET(bm, p.priv.pt.get(0).x, p.priv.pt.get(0).y - 1)) {
 //                    children.addLast(p);
-                    path_t headChildListLast = find_last(head.childlist);
+                    Path headChildListLast = find_last(head.childlist);
                     p.next = null;
                     if (headChildListLast != null) {
                         headChildListLast.next = p;
@@ -869,7 +871,7 @@ constvioloop:
                     }
                 } else {
 //                    nexts.addLast(p);
-                    path_t headNextLast = find_last(head.next);
+                    Path headNextLast = find_last(head.next);
                     p.next = null;
                     if (headNextLast != null) {
                         headNextLast.next = p;
@@ -903,7 +905,7 @@ constvioloop:
         /* copy sibling structure from "next" to "sibling" component */
         p = paths.get(0);
         while (p != null) {
-            path_t p1 = p.sibling;
+            Path p1 = p.sibling;
             p.sibling = p.next;
             p = p1;
         }
@@ -917,15 +919,15 @@ constvioloop:
             heap.next = null;  /* heap is a linked list of childlists */
         }
 
-        path_t plist = null;
+        Path plist = null;
         while (heap != null) {
             //System.out.println("step2, iter="+(iter++));
             //print_path(paths);
-            path_t heap1 = heap.next;
+            Path heap1 = heap.next;
             for (p = heap; p != null; p = p.sibling) {
                 /* p is a positive path */
                 /* append to linked list */
-                path_t plistLast = find_last(plist);
+                Path plistLast = find_last(plist);
                 p.next = null;
                 if (plistLast != null) {
                     plistLast.next = p;
@@ -935,7 +937,7 @@ constvioloop:
 //                System.out.println("step2-0, iter="+(iter++));
 //                print_path(paths);
                 /* go through its children */
-                for (path_t p1 = p.childlist; p1 != null; p1 = p1.sibling) {
+                for (Path p1 = p.childlist; p1 != null; p1 = p1.sibling) {
                     /* append to linked list */
                     plistLast = find_last(plist);
                     p1.next = null;
@@ -964,8 +966,8 @@ constvioloop:
         return plist;
     }
 
-    private path_t find_last(path_t lst) {
-        path_t prev = null;
+    private Path find_last(Path lst) {
+        Path prev = null;
         while (lst != null) {
             prev = lst;
             lst = lst.next;
@@ -973,15 +975,15 @@ constvioloop:
         return prev;
     }
 
-    private bbox_t setbbox_path(path_t p) {
-        bbox_t bbox = new bbox_t();
+    private BBox setbbox_path(Path p) {
+        BBox bbox = new BBox();
 
         bbox.y0 = Integer.MAX_VALUE;
         bbox.y1 = 0;
         bbox.x0 = Integer.MAX_VALUE;
         bbox.x1 = 0;
 
-        for (point_t pt : p.priv.pt) {
+        for (Point pt : p.priv.pt) {
             int x = pt.x;
             int y = pt.y;
 
@@ -1001,11 +1003,11 @@ constvioloop:
         return bbox;
     }
 
-    private void xor_path(Bitmap bm, path_t p) {
+    private void xor_path(Bitmap bm, Path p) {
         if (p.priv.pt.size() == 0) return; /* a path of length 0 is silly, but legal */
         int y1 = p.priv.pt.get(p.priv.pt.size() - 1).y;
         int xa = p.priv.pt.get(0).x;
-        for (point_t pt : p.priv.pt) {
+        for (Point pt : p.priv.pt) {
             if (pt.y != y1) {
                 /* efficiently invert the rectangle [x,xa] x [y,y1] */
                 xor_to_ref(bm, pt.x, Math.min(pt.y, y1), xa);
@@ -1023,10 +1025,10 @@ constvioloop:
         }
     }
 
-    private path_t findpath(Bitmap bm, int x0, int y0, char sign, param_t.TurnPolicy turnpolicy) {
+    private Path findpath(Bitmap bm, int x0, int y0, char sign, Param.TurnPolicy turnpolicy) {
         int x, y, dirx, diry, size, area, tmp;
         boolean c, d;
-        ArrayList<point_t> pt = new ArrayList<point_t>();
+        ArrayList<Point> pt = new ArrayList<Point>();
 
         x = x0;
         y = y0;
@@ -1036,7 +1038,7 @@ constvioloop:
         area = 0;
 
         while (true) {
-            pt.add(new point_t(x, y));
+            pt.add(new Point(x, y));
 
             /* move to next point */
             x += dirx;
@@ -1053,12 +1055,12 @@ constvioloop:
             d = BM_GET(bm, x + (dirx - diry - 1) / 2, y + (diry + dirx - 1) / 2);
 
             if (c && !d) {               /* ambiguous turn */
-                if (turnpolicy == param_t.TurnPolicy.POTRACE_TURNPOLICY_RIGHT
-                        || (turnpolicy == param_t.TurnPolicy.POTRACE_TURNPOLICY_BLACK && sign == '+')
-                        || (turnpolicy == param_t.TurnPolicy.POTRACE_TURNPOLICY_WHITE && sign == '-')
-                        || (turnpolicy == param_t.TurnPolicy.POTRACE_TURNPOLICY_RANDOM && detrand(x, y) != 0)
-                        || (turnpolicy == param_t.TurnPolicy.POTRACE_TURNPOLICY_MAJORITY && majority(bm, x, y))
-                        || (turnpolicy == param_t.TurnPolicy.POTRACE_TURNPOLICY_MINORITY && !majority(bm, x, y))) {
+                if (turnpolicy == Param.TurnPolicy.POTRACE_TURNPOLICY_RIGHT
+                        || (turnpolicy == Param.TurnPolicy.POTRACE_TURNPOLICY_BLACK && sign == '+')
+                        || (turnpolicy == Param.TurnPolicy.POTRACE_TURNPOLICY_WHITE && sign == '-')
+                        || (turnpolicy == Param.TurnPolicy.POTRACE_TURNPOLICY_RANDOM && detrand(x, y) != 0)
+                        || (turnpolicy == Param.TurnPolicy.POTRACE_TURNPOLICY_MAJORITY && majority(bm, x, y))
+                        || (turnpolicy == Param.TurnPolicy.POTRACE_TURNPOLICY_MINORITY && !majority(bm, x, y))) {
                     tmp = dirx;              /* right turn */
                     dirx = diry;
                     diry = -tmp;
@@ -1079,7 +1081,7 @@ constvioloop:
         } /* while this path */
 
         /* allocate new path object */
-        return new path_t(pt, area, sign);
+        return new Path(pt, area, sign);
 
     }
 
@@ -1131,7 +1133,7 @@ constvioloop:
     }
 
 
-    private int findnext(Bitmap bm, point_t p) {
+    private int findnext(Bitmap bm, Point p) {
         int x0 = p.x;
         for (int y = p.y; y >= 0; y--) {
             for (int x = x0; x < bm.w; x++) {
@@ -1163,12 +1165,12 @@ constvioloop:
     }
 
     /* calculate p1 x p2 */
-    static final int xprod(point_t p1, point_t p2) {
+    static final int xprod(Point p1, Point p2) {
         return p1.x * p2.y - p1.y * p2.x;
     }
 
     /* calculate (p1-p0)x(p3-p2) */
-    static final double cprod(dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3) {
+    static final double cprod(PointDouble p0, PointDouble p1, PointDouble p2, PointDouble p3) {
         double x1, y1, x2, y2;
 
         x1 = p1.x - p0.x;
@@ -1180,7 +1182,7 @@ constvioloop:
     }
 
     /* calculate (p1-p0)*(p2-p0) */
-    static double iprod(dpoint_t p0, dpoint_t p1, dpoint_t p2) {
+    static double iprod(PointDouble p0, PointDouble p1, PointDouble p2) {
         double x1, y1, x2, y2;
 
         x1 = p1.x - p0.x;
@@ -1192,7 +1194,7 @@ constvioloop:
     }
 
     /* calculate (p1-p0)*(p3-p2) */
-    static double iprod1(dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3) {
+    static double iprod1(PointDouble p0, PointDouble p1, PointDouble p2, PointDouble p3) {
         double x1, y1, x2, y2;
 
         x1 = p1.x - p0.x;
@@ -1204,7 +1206,7 @@ constvioloop:
     }
 
     /* calculate distance between two points */
-    static double ddist(dpoint_t p, dpoint_t q) {
+    static double ddist(PointDouble p, PointDouble q) {
         return Math.sqrt(sq(p.x - q.x) + sq(p.y - q.y));
     }
 
@@ -1214,9 +1216,9 @@ constvioloop:
 
 
     /* calculate point of a bezier curve */
-    static dpoint_t bezier(double t, dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3) {
+    static PointDouble bezier(double t, PointDouble p0, PointDouble p1, PointDouble p2, PointDouble p3) {
         double s = 1 - t;
-        dpoint_t res = new dpoint_t();
+        PointDouble res = new PointDouble();
 
         /* Note: a good optimizing compiler (such as gcc-3) reduces the
        following to 16 multiplications, using common subexpression
@@ -1231,7 +1233,7 @@ constvioloop:
     /* calculate the point t in [0..1] on the (convex) bezier curve
        (p0,p1,p2,p3) which is tangent to q1-q0. Return -1.0 if there is no
        solution in [0..1]. */
-    static double tangent(dpoint_t p0, dpoint_t p1, dpoint_t p2, dpoint_t p3, dpoint_t q0, dpoint_t q1) {
+    static double tangent(PointDouble p0, PointDouble p1, PointDouble p2, PointDouble p3, PointDouble q0, PointDouble q1) {
         double A, B, C;   /* (1-t)^2 A + 2(1-t)t B + t^2 C = 0 */
         double a, b, c;   /* a t^2 + b t + c = 0 */
         double d, s, r1, r2;
@@ -1277,10 +1279,10 @@ constvioloop:
         return a >= 0 ? a / n : -1 - (-1 - a) / n;
     }
 
-    static double penalty3(privpath_t pp, int i, int j) {
+    static double penalty3(PrivPath pp, int i, int j) {
         int n = pp.pt.size();
-        point_t pt[] = pp.getPTArray();
-        sums_t[] sums = pp.sums;
+        Point pt[] = pp.getPTArray();
+        Sums[] sums = pp.sums;
 
         /* assume 0<=i<j<=n  */
         double x, y, x2, xy, y2;
@@ -1326,7 +1328,7 @@ constvioloop:
         return Math.sqrt(s);
     }
 
-    static double quadform(double[][] Q, dpoint_t w) {
+    static double quadform(double[][] Q, PointDouble w) {
         double v[] = new double[3];
         int i, j;
         double sum;
@@ -1345,11 +1347,11 @@ constvioloop:
     }
 
 
-    static void pointslope(privpath_t pp, int i, int j, dpoint_t ctr, dpoint_t dir) {
+    static void pointslope(PrivPath pp, int i, int j, PointDouble ctr, PointDouble dir) {
         /* assume i<j */
 
         int n = pp.pt.size();
-        sums_t[] sums = pp.sums;
+        Sums[] sums = pp.sums;
 
         double x, y, x2, xy, y2;
         double k;
@@ -1412,22 +1414,22 @@ constvioloop:
         }
     }
 
-    static dpoint_t interval(double lambda, dpoint_t a, dpoint_t b) {
-        dpoint_t res = new dpoint_t();
+    static PointDouble interval(double lambda, PointDouble a, PointDouble b) {
+        PointDouble res = new PointDouble();
 
         res.x = a.x + lambda * (b.x - a.x);
         res.y = a.y + lambda * (b.y - a.y);
         return res;
     }
 
-    static double ddenom(dpoint_t p0, dpoint_t p2) {
-        point_t r = dorth_infty(p0, p2);
+    static double ddenom(PointDouble p0, PointDouble p2) {
+        Point r = dorth_infty(p0, p2);
 
         return r.y * (p2.x - p0.x) - r.x * (p2.y - p0.y);
     }
 
-    static point_t dorth_infty(dpoint_t p0, dpoint_t p2) {
-        point_t r = new point_t();
+    static Point dorth_infty(PointDouble p0, PointDouble p2) {
+        Point r = new Point();
 
         r.y = (int) Math.signum(p2.x - p0.x);
         r.x = (int) -Math.signum(p2.y - p0.y);
@@ -1435,7 +1437,7 @@ constvioloop:
         return r;
     }
 
-    static double dpara(dpoint_t p0, dpoint_t p1, dpoint_t p2) {
+    static double dpara(PointDouble p0, PointDouble p1, PointDouble p2) {
         double x1, y1, x2, y2;
 
         x1 = p1.x - p0.x;
@@ -1446,11 +1448,11 @@ constvioloop:
         return x1 * y2 - x2 * y1;
     }
 
-    int opti_penalty(privpath_t pp, int i, int j, opti_t res, double opttolerance, int[] convc, double[] areac) {
+    int opti_penalty(PrivPath pp, int i, int j, opti_t res, double opttolerance, int[] convc, double[] areac) {
         int m = pp.curve.n;
         int k, k1, k2, conv, i1;
         double area, alpha, d, d1, d2;
-        dpoint_t p0, p1, p2, p3, pt;
+        PointDouble p0, p1, p2, p3, pt;
         double A, R, A1, A2, A3, A4;
         double s, t;
 

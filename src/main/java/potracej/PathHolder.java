@@ -1,16 +1,14 @@
 package potracej;
 
-import java.util.ArrayList;
+public class PathHolder {
+    Path value;
+    Path last;
 
-public class path_t_Holder {
-    path_t value;
-    path_t last;
-
-    public path_t_Holder(path_t value) {
+    public PathHolder(Path value) {
         this.value = value;
     }
 
-    public void addLast(path_t path) {
+    public void addLast(Path path) {
         if (value == null) {
             value = last = path;
         } else {
@@ -20,11 +18,11 @@ public class path_t_Holder {
         path.next = null;
     }
 
-    public path_t getValue() {
+    public Path getValue() {
         return value;
     }
 
-    public path_t getLast() {
+    public Path getLast() {
         return last;
     }
 }

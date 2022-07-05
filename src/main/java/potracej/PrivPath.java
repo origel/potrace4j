@@ -3,21 +3,21 @@ package potracej;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class privpath_t {
-    public ArrayList<point_t> pt;     /* pt[len]: path as extracted from bitmap */
+public class PrivPath {
+    public ArrayList<Point> pt;     /* pt[len]: path as extracted from bitmap */
     public int lon[];        /* lon[len]: (i,lon[i]) = longest straight line from i */
 
     public int x0, y0;      /* origin for sums */
-    public sums_t sums[];    /* sums[len+1]: cache for fast summing */
+    public Sums sums[];    /* sums[len+1]: cache for fast summing */
 
     public int m;           /* length of optimal polygon */
     public int po[];         /* po[m]: optimal polygon */
 
-    public privcurve_t curve;   /* curve[m]: array of curve elements */
-    public privcurve_t ocurve;  /* ocurve[om]: array of curve elements */
-    public privcurve_t fcurve;  /* final curve: this points to either curve or
+    public PrivCurve curve;   /* curve[m]: array of curve elements */
+    public PrivCurve ocurve;  /* ocurve[om]: array of curve elements */
+    public PrivCurve fcurve;  /* final curve: this points to either curve or
     		                    ocurve. Do not free this separately. */
-    private point_t[] PTArray;
+    private Point[] PTArray;
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -46,9 +46,9 @@ public class privpath_t {
         return sb.toString();
     }
 
-    public point_t[] getPTArray() {
+    public Point[] getPTArray() {
         if (PTArray == null) {
-            PTArray = pt.toArray(new point_t[pt.size()]);
+            PTArray = pt.toArray(new Point[pt.size()]);
         }
         return PTArray;
     }

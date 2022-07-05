@@ -1,6 +1,6 @@
 package potracej;
 
-public class sums_t {
+public class Sums {
     public double x;
     public double y;
     public double x2;

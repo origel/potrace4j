@@ -58,7 +58,7 @@ public class Bitmap {
         }
     }
 
-    public void clear_with_bbox(bbox_t bbox) {
+    public void clear_with_bbox(BBox bbox) {
         for (int y = bbox.y0; y < bbox.y1; y++) {
             for (int i = bbox.x0; i < bbox.x1; i++) {
                 put(i, y, 0);

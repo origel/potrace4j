@@ -1,6 +1,9 @@
 import compat.ConvertToJavaCurves;
 import compat.PathElement;
-import potracej.*;
+import potracej.Bitmap;
+import potracej.Param;
+import potracej.Path;
+import potracej.PoTraceJ;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,12 +14,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,7 +32,7 @@ public class Main {
 
     static BufferedImage result;
     static Bitmap bmp;
-    static param_t param = new param_t();
+    static Param param = new Param();
     static double scale = 3;
     static ImageIcon resultIcon;
     static ImageIcon srcIcon;
@@ -37,8 +40,7 @@ public class Main {
     static boolean renderSourceImage = false;
 
     public static void main(String[] args) throws IOException {
-
-        sourceImage = ImageIO.read(new File("girl.png"));
+        sourceImage = ImageIO.read(new File("/Users/zhuruixian/git/potrace4j/girl.png"));
 
         //Toolkit.getDefaultToolkit().
         WritableRaster raster = sourceImage.getRaster();
@@ -139,18 +141,18 @@ public class Main {
         PoTraceJ poTraceJ = new PoTraceJ(param);
         long l = System.currentTimeMillis();
 
-        path_t trace = null;
-        for(int i=0; i<10; i++) {
+        Path trace = null;
+        for (int i = 0; i < 1; i++) {
             trace = poTraceJ.trace(bmp);
             Thread.yield();
         }
         poTraceJ.resetTimers();
-        for(int i=0; i<100; i++) {
+        for (int i = 0; i < 1; i++) {
             trace = poTraceJ.trace(bmp);
         }
         poTraceJ.printTimers();
         l = System.currentTimeMillis() - l;
-        System.out.println("L="+l);
+        System.out.println("L=" + l);
         ArrayList<PathElement> al = new ArrayList<PathElement>();
         ConvertToJavaCurves.convert(trace, new HashSet<ConvertToJavaCurves.Point>(), al);
 
