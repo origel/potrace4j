@@ -19,14 +19,8 @@ public class PoTraceJ {
     }
 
     public Path trace(Bitmap bitmap) {
-        long l = System.currentTimeMillis();
-        Path paths = bm_to_pathlist(bitmap);
-        l = System.currentTimeMillis() - l;
-        //System.out.println("Decompose: "+l+" msec");
-        l = System.currentTimeMillis();
+        Path paths = bitmap2Path(bitmap);
         process_path(paths);
-        l = System.currentTimeMillis() - l;
-        //System.out.println("Curves: "+l+" msec");
         return paths;
     }
 
@@ -748,26 +742,18 @@ constvioloop:
 
     }
 
-    private Path bm_to_pathlist(Bitmap bm) {
+    private Path bitmap2Path(Bitmap bm) {
         ArrayList<Path> paths = new ArrayList<Path>();
-        //path_t plist = null;
         Bitmap bm1 = bm.dup();
         Point pt = new Point(0, bm1.h - 1);
-        int count = 0;
-        //System.out.println(bm1.toDebugString());
         while (findnext(bm1, pt) == 0) {
             char sign = bm.get(pt.x, pt.y) ? '+' : '-';
-            Path p = findpath(bm1, pt.x, pt.y + 1, sign, param.turnPolicy);
-            xor_path(bm1, p);
-            //System.out.println("PATH: area="+p.area);
-            if (p.area <= param.turdsize) {
-                // nothing
-            } else {
-                count++;
-                paths.add(p);
+            Path path = findPath(bm1, pt.x, pt.y + 1, sign, param.turnPolicy);
+            xor_path(bm1, path);
+            if (path.area > param.turdsize) {
+                paths.add(path);
             }
         }
-//        System.out.println("count="+count);
         return pathlist_to_tree(paths, bm1);
     }
 
@@ -1020,7 +1006,7 @@ constvioloop:
         }
     }
 
-    private Path findpath(Bitmap bm, int x0, int y0, char sign, Param.TurnPolicy turnpolicy) {
+    private Path findPath(Bitmap bm, int x0, int y0, char sign, Param.TurnPolicy turnpolicy) {
         int x, y, dirx, diry, size, area, tmp;
         boolean c, d;
         ArrayList<Point> pt = new ArrayList<Point>();
