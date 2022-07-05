@@ -30,9 +30,10 @@ public class BitmapTracer {
 		SVGUtils.saveSvgDocumentToFile(svgDocument, new File("/Users/zhuruixian/git/potrace4j/girl.svg"));
 	}
 
-	// Copy logic from MAIN about tracing - done
-	// SAVE path to SVGPath - done
-	// TODO : export SVG document to String
+	/**
+	 * @param sourceImage
+	 * @return
+	 */
 	public static SVGDocument toSVG(BufferedImage sourceImage) {
 		return toSVG(sourceImage, false);
 	}
@@ -59,8 +60,6 @@ public class BitmapTracer {
 				}
 			}
 		}
-
-		//System.out.println(bmp.toDebugString());
 
 		// Setting default (sharp) params
 		Param param = new Param();

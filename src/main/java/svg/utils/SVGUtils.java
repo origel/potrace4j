@@ -27,19 +27,15 @@ public class SVGUtils {
 	}
 
 	public static void putPathToSvgDocument(SVGDocument document, GeneralPath path) {
-
 		putPathToSvgDocument(document, new VectorFigure(path, null, Color.BLACK));
 	}
 
 	public static void putPathToSvgDocument(SVGDocument document, VectorFigure figure) {
-
 		if (figure.getNonStrokingColor() == null) {
 			return;
 		}
 
 		SVGGeneratorContext ctx = SVGGeneratorContext.createDefault(document);
-
-		// System.out.println(SVGPath.toSVGPathData(path, ctx));
 
 		SVGPath svgPath = new SVGPath(ctx);
 		Element svgElement = svgPath.toSVG(figure.getFigurePath());
@@ -58,9 +54,6 @@ public class SVGUtils {
 			if (dashArray != null) {
 				svgElement.setAttribute(SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE, dashArray);
 			}
-
-			// TODO 'stroke-dashoffset'
-			// TODO opacity
 		}
 		document.getRootElement().appendChild(svgElement);
 	}
@@ -75,5 +68,22 @@ public class SVGUtils {
 		try (Writer out = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
 			svgGenerator.stream(document.getDocumentElement(), out);
 		}
+	}
+
+	/**
+	 * 文档转字符串
+	 *
+	 * @param document
+	 * @return
+	 * @throws Exception
+	 */
+	public static String toString(SVGDocument document) throws Exception {
+		SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		try (Writer out = new OutputStreamWriter(bos, "UTF-8")) {
+			svgGenerator.stream(document.getDocumentElement(), out);
+		}
+
+		return new String(bos.toByteArray());
 	}
 }
