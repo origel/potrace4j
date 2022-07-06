@@ -22,12 +22,12 @@ public class BitmapTracer {
 	private static int DEFAULT_SCALE = 1;
 
 	public static void main(String[] args) throws Exception {
-		BufferedImage bufferedImage = ImageIO.read(new File("/Users/zhuruixian/git/potrace4j/girl.png"));
+		BufferedImage bufferedImage = ImageIO.read(new File("/Users/zhuruixian/git/potrace4j/src/main/test/data/test4.jpeg"));
 		long start = System.currentTimeMillis();
-		SVGDocument svgDocument = BitmapTracer.toSVG(bufferedImage);
+		SVGDocument svgDocument = BitmapTracer.toSVG(bufferedImage, false);
 		System.out.println("cost:" + (System.currentTimeMillis() - start) + "ms");
 
-		SVGUtils.saveSvgDocumentToFile(svgDocument, new File("/Users/zhuruixian/git/potrace4j/girl.svg"));
+		SVGUtils.saveSvgDocumentToFile(svgDocument, new File("/Users/zhuruixian/git/potrace4j/src/main/test/data/test4.svg"));
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class BitmapTracer {
 				int blue = pixel[2];
 				int alpha = pixel[3];
 
-				if (isIgnoreWhite && red >= 254 && red >= green && blue >= 254) {
+				if (isIgnoreWhite && red >= 254 && green >= 254 && blue >= 254) {
 					continue;
 				}
 

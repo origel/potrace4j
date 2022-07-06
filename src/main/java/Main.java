@@ -40,7 +40,7 @@ public class Main {
     static boolean renderSourceImage = false;
 
     public static void main(String[] args) throws IOException {
-        sourceImage = ImageIO.read(new File("/Users/zhuruixian/git/potrace4j/girl.png"));
+        sourceImage = ImageIO.read(new File("/Users/zhuruixian/git/potrace4j/src/main/test/data/test2.png"));
 
         //Toolkit.getDefaultToolkit().
         WritableRaster raster = sourceImage.getRaster();
@@ -49,6 +49,9 @@ public class Main {
         for(int y=0; y<sourceImage.getHeight(); y++) {
             for(int x=0; x<sourceImage.getWidth(); x++) {
                 int[] pixel = raster.getPixel(x, y, iarr);
+                if (pixel[0] >= 254 && pixel[1] >= 254 && pixel[2] >= 254) {
+                    continue;
+                }
                 if (pixel[0] + pixel[1] + pixel[2] + pixel[3] != 0) {
                     bmp.put(x, y, 1);
                 }
